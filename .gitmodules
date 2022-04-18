@@ -1,0 +1,3 @@
+[submodule "src/CSLibSuite"]
+	path = src/CSLibSuite
+	url = git@github.com:baozhangchi/CSLibSuite.git
