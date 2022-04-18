@@ -1,0 +1,17 @@
+﻿<Project Sdk="MSBuild.Sdk.Extras/3.0.44">
+
+	<PropertyGroup>
+		<TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
+	</PropertyGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite">
+	    <Version>6.0.4</Version>
+	  </PackageReference>
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0-windows'">
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.16" />
+	</ItemGroup>
+
+</Project>
