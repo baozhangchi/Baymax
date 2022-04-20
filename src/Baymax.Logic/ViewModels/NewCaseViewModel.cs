@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Baymax.Models;
+﻿using Baymax.Models;
 using MaterialDesignThemes.Wpf;
-using Stylet;
 using StyletIoC;
+using System.IO;
 
 namespace Baymax.Logic.ViewModels
 {
@@ -21,9 +15,22 @@ namespace Baymax.Logic.ViewModels
             DisplayName = "新建用例";
         }
 
+        /// <summary>
+        /// 用例名称
+        /// </summary>
         public string CaseName { get; set; }
 
+        /// <summary>
+        /// 项目所在目录
+        /// </summary>
         public string ProjectFolder { get; set; }
+
+        /// <summary>
+        /// 启动地址
+        /// </summary>
+        public string StartUrl { get; set; }
+
+        public bool CanConfirm => !string.IsNullOrWhiteSpace(CaseName) && !string.IsNullOrWhiteSpace(StartUrl);
 
         public BaymaxProjectModel Project { get; set; }
 
@@ -41,10 +48,18 @@ namespace Baymax.Logic.ViewModels
                 Directory.CreateDirectory(caseFolder);
             }
 
-            Project.TestCases.Add(CaseName);
-
             var caseFile = Path.Combine(caseFolder, $"{CaseName}.bmc");
-            using (var db = new Baymax.Dal.BaymaxDbContext($"data source={caseFile}"))
+
+            var caseModel = new BaymaxCaseModel()
+            {
+                Name = CaseName,
+                StartUrl = StartUrl,
+                Source = Path.GetRelativePath(ProjectFolder, caseFile),
+                FullSource = caseFile
+            };
+            Project.TestCases.Add(caseModel);
+
+            using (var db = new Baymax.Dal.BaymaxDbContext(caseModel.ConnectionString))
             {
                 db.Database.EnsureCreated();
             }
@@ -55,6 +70,18 @@ namespace Baymax.Logic.ViewModels
         public void Cancel()
         {
             DialogHost.Close(null);
+        }
+
+        protected override void OnPropertyChanged(string propertyName)
+        {
+            base.OnPropertyChanged(propertyName);
+            switch (propertyName)
+            {
+                case nameof(CaseName):
+                case nameof(StartUrl):
+                    NotifyOfPropertyChange(nameof(CanConfirm));
+                    break;
+            }
         }
     }
 }

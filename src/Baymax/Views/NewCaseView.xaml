@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Baymax.Views"
     xmlns:logic="https://github.com/baozhangchi/Baymax/Logic"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:s="https://github.com/canton7/Stylet"
     d:DataContext="{d:DesignInstance logic:NewCaseViewModel}"
@@ -15,16 +16,14 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <TextBlock
-            VerticalAlignment="Center"
-            Style="{StaticResource LabelStyle}"
-            Text="用例名称：" />
+        <Label VerticalAlignment="Center" Content="用例名称：" />
         <TextBox
             Grid.Row="0"
             Grid.Column="1"
@@ -32,22 +31,35 @@
             VerticalAlignment="Center"
             Text="{Binding Path=CaseName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
 
+        <Label
+            Grid.Row="1"
+            VerticalAlignment="Center"
+            Content="启动地址：" />
+        <TextBox
+            Grid.Row="1"
+            Grid.Column="1"
+            Width="200"
+            VerticalAlignment="Center"
+            Text="{Binding Path=StartUrl, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+
 
         <Grid
-            Grid.Row="1"
+            Grid.Row="2"
             Grid.Column="0"
             Grid.ColumnSpan="2">
             <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <Button
                     Command="{s:Action Method=Confirm,
                                        ActionNotFound=Throw}"
-                    Content="确定"
-                    IsDefault="True" />
+                    Content="{materialDesign:PackIcon ContentSave}"
+                    IsDefault="True"
+                    ToolTip="确定" />
                 <Button
                     Command="{s:Action Method=Cancel,
                                        ActionNotFound=Throw}"
-                    Content="取消"
-                    IsCancel="True" />
+                    Content="{materialDesign:PackIcon Cancel}"
+                    IsCancel="True"
+                    ToolTip="取消" />
             </StackPanel>
         </Grid>
     </Grid>

@@ -5,7 +5,12 @@
 		<TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
 		<Nullable>disable</Nullable>
 		<UseWPF>true</UseWPF>
+		<ApplicationIcon>baymax.ico</ApplicationIcon>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <Content Include="baymax.ico" />
+	</ItemGroup>
 
 	<ItemGroup>
 	  <PackageReference Include="MaterialDesignThemes" Version="4.4.0" />
@@ -16,5 +21,6 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\Baymax.Controls\Baymax.Controls.csproj" />
 	  <ProjectReference Include="..\Baymax.Logic\Baymax.Logic.csproj" />
+	  <ProjectReference Include="..\CSLibSuite\src\WPFUtils\WPFUtils.csproj" />
 	</ItemGroup>
 </Project>

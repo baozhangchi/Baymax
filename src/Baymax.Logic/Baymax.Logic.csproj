@@ -2,6 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
+		<Nullable>disable</Nullable>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
 	</PropertyGroup>
@@ -19,6 +20,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="DeepCopy" Version="1.0.3" />
 	  <PackageReference Include="NLog" Version="4.7.15" />
 	  <PackageReference Include="NLog.Extensions.Logging" Version="1.7.4" />
 	  <PackageReference Include="PropertyChanged.Fody" Version="3.4.0" />
@@ -32,6 +34,7 @@
 	  <ProjectReference Include="..\Baymax.Dal\Baymax.Dal.csproj" />
 	  <ProjectReference Include="..\Baymax.Models\Baymax.Models.csproj" />
 	  <ProjectReference Include="..\CSLibSuite\src\Selenium.Handler\Selenium.Handler.csproj" />
+	  <ProjectReference Include="..\CSLibSuite\src\Utils\Utils.csproj" />
 	  <ProjectReference Include="..\CSLibSuite\src\WPFUtils\WPFUtils.csproj" />
 	</ItemGroup>
 </Project>

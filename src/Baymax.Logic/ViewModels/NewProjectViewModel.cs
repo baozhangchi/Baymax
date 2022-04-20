@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
 using Baymax.Models;
 using MaterialDesignThemes.Wpf;
 using Stylet;
@@ -44,7 +45,7 @@ namespace Baymax.Logic.ViewModels
             Directory.CreateDirectory(Path.Combine(ProjectFolder, ProjectName));
 
             var projectFile = Path.Combine(ProjectFolder, ProjectName, $"{ProjectName}.bmpro");
-            File.WriteAllText(projectFile, new BaymaxProjectModel().ToXml());
+            File.WriteAllText(projectFile, new BaymaxProjectModel() { Name = ProjectName }.ToXml(removeDefaultNamespaces: true));
             DialogHost.Close(null, projectFile);
         }
 

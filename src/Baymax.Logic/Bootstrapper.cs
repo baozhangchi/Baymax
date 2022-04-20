@@ -19,13 +19,20 @@ namespace Baymax.Logic
             var modelBaseType = typeof(ViewModelBase);
             var viewBaseType = typeof(FrameworkElement);
             AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()).Where(x => x.Namespace is "Baymax.Views").ToList().ForEach(x =>
-              {
-                  builder.Bind(x).ToSelf();
-              });
-            AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()).Where(x => x.IsAssignableFrom(modelBaseType) && x != modelBaseType && !x.IsAbstract && !x.IsInterface).ToList().ForEach(x =>
+            {
+                builder.Bind(x).ToSelf();
+            });
+            AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()).Where(x => modelBaseType.IsAssignableFrom(x) && x != modelBaseType && !x.IsAbstract && !x.IsInterface).ToList().ForEach(x =>
+            {
+                if (x == typeof(ShellViewModel))
+                {
+                    builder.Bind(x).To<ShellViewModel>().InSingletonScope();
+                }
+                else
                 {
                     builder.Bind(x).ToSelf();
-                });
+                }
+            });
             LogManager.LoggerFactory = NLogger.GetLogger;
             base.ConfigureIoC(builder);
         }
@@ -35,6 +42,8 @@ namespace Baymax.Logic
             base.Configure();
             var config = Container.Get<ViewManagerConfig>();
             config.ViewAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
+            IOC.GetInstance = Container.Get;
+            IOC.GetAllInstances = Container.GetAll;
         }
     }
 }

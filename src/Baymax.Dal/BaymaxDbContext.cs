@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace Baymax.Dal
 {
@@ -12,10 +11,21 @@ namespace Baymax.Dal
             _connectionString = connectionString;
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlite(_connectionString);
             base.OnConfiguring(optionsBuilder);
         }
+
+        public DbSet<TestStep> TestSteps { get; set; }
+
+        public DbSet<TestResult> TestResults { get; set; }
+
+        public DbSet<TestHistory> TestHistories { get; set; }
     }
 }

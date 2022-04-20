@@ -21,18 +21,17 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <TextBlock Style="{StaticResource LabelStyle}" Text="项目名称：" />
+        <Label Content="项目名称：" />
         <TextBox
             Grid.Row="0"
             Grid.Column="1"
             Grid.ColumnSpan="2"
             Text="{Binding Path=ProjectName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
 
-        <TextBlock
+        <Label
             Grid.Row="1"
             Grid.Column="0"
-            Style="{StaticResource LabelStyle}"
-            Text="项目路径：" />
+            Content="项目路径：" />
         <TextBox
             Grid.Row="1"
             Grid.Column="1"
@@ -43,7 +42,8 @@
             Grid.Column="2"
             Command="{s:Action Method=SelectProjectFolder,
                                ActionNotFound=Throw}"
-            Content="..." />
+            Content="{materialDesign:PackIcon FolderSearch}"
+            ToolTip="项目目录选择" />
 
         <Grid
             Grid.Row="2"
@@ -53,13 +53,15 @@
                 <Button
                     Command="{s:Action Method=Confirm,
                                        ActionNotFound=Throw}"
-                    Content="确定"
-                    IsDefault="True" />
+                    Content="{materialDesign:PackIcon ContentSave}"
+                    IsDefault="True"
+                    ToolTip="确定" />
                 <Button
                     Command="{s:Action Method=Cancel,
                                        ActionNotFound=Throw}"
-                    Content="取消"
-                    IsCancel="True" />
+                    Content="{materialDesign:PackIcon Cancel}"
+                    IsCancel="True"
+                    ToolTip="取消" />
             </StackPanel>
         </Grid>
     </Grid>
