@@ -25,16 +25,29 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0" Content="开始地址：" />
                 <TextBox Grid.Column="1" Text="{Binding Path=TestCase.StartUrl, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-                <Button
-                    Grid.Column="2"
-                    Command="{s:Action Method=Save}"
-                    Content="{materialDesign:PackIcon ContentSave}"
-                    ToolTip="保存" />
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button
+                        Command="{s:Action Method=Save}"
+                        Content="{materialDesign:PackIcon ContentSave}"
+                        ToolTip="保存" />
+                    <Button
+                        Command="{s:Action Method=Run,
+                                           ActionNotFound=Disable}"
+                        Content="{materialDesign:PackIcon Play}"
+                        ToolTip="运行" />
+                    <Button
+                        Command="{s:Action Method=ShowHistory}"
+                        Content="{materialDesign:PackIcon History}"
+                        ToolTip="历史记录" />
+                </StackPanel>
+
+                <Separator Grid.Column="3" />
                 <StackPanel
-                    Grid.Column="3"
+                    Grid.Column="4"
                     Margin="5,0"
                     HorizontalAlignment="Right"
                     Orientation="Horizontal">

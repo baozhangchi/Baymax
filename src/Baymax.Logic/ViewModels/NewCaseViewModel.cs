@@ -2,6 +2,8 @@
 using MaterialDesignThemes.Wpf;
 using StyletIoC;
 using System.IO;
+using System.Windows;
+using Stylet;
 
 namespace Baymax.Logic.ViewModels
 {
@@ -49,6 +51,13 @@ namespace Baymax.Logic.ViewModels
             }
 
             var caseFile = Path.Combine(caseFolder, $"{CaseName}.bmc");
+
+            if (File.Exists(caseFile))
+            {
+                IOC.Get<IWindowManager>().ShowMessageBox($"已存在名称为【{CaseName}】的用例", "提示", MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
 
             var caseModel = new BaymaxCaseModel()
             {

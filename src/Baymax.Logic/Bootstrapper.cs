@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows;
 using Stylet.Logging;
+using MessageBoxViewModel = Baymax.Logic.ViewModels.MessageBoxViewModel;
 
 namespace Baymax.Logic
 {
@@ -15,6 +16,7 @@ namespace Baymax.Logic
         {
             builder.Bind<IViewManager>().To<ViewManager>();
             builder.Bind<IWindowManager>().To<WindowManager>();
+            builder.Bind<IMessageBoxViewModel>().To<MessageBoxViewModel>();
             //var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()).ToList();
             var modelBaseType = typeof(ViewModelBase);
             var viewBaseType = typeof(FrameworkElement);

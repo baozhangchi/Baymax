@@ -1,12 +1,106 @@
-﻿<UserControl x:Class="Baymax.Views.HistoryView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Baymax.Views"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-            
+﻿<UserControl
+    x:Class="Baymax.Views.HistoryView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:dal="https://github.com/baozhangchi/Baymax/dal"
+    xmlns:local="clr-namespace:Baymax.Views"
+    xmlns:logic="https://github.com/baozhangchi/Baymax/Logic"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:s="https://github.com/canton7/Stylet"
+    xmlns:wpfutils="https://github.com/baozhangchi/CSLibSuite/wpfutils"
+    d:DataContext="{d:DesignInstance logic:HistoryViewModel}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <Grid
+        Width="800"
+        Height="600"
+        Margin="5">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <TreeView ItemsSource="{Binding Path=Histories}" SelectedItemChanged="{s:Action Method=HistoriesSelectedItemChanged}">
+            <TreeView.ItemContainerStyle>
+                <Style BasedOn="{StaticResource {x:Type TreeViewItem}}" TargetType="TreeViewItem">
+                    <Setter Property="IsExpanded" Value="True" />
+                </Style>
+            </TreeView.ItemContainerStyle>
+            <TreeView.ItemTemplate>
+                <HierarchicalDataTemplate ItemsSource="{Binding Path=Value}">
+                    <HierarchicalDataTemplate.ItemTemplate>
+                        <DataTemplate DataType="dal:TestHistory">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Path=Step.VerificationType}" />
+                                <TextBlock Text="{Binding Path=Step.VerificationValue}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </HierarchicalDataTemplate.ItemTemplate>
+                    <ContentPresenter Content="{Binding Path=Key}" ContentStringFormat="yyyy-MM-dd HH:mm:ss" />
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+        <ListBox Grid.Column="1" ItemsSource="{Binding Path=CurrentHistory.Results}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Grid.ContextMenu>
+                            <ContextMenu Background="{StaticResource MaterialDesignLightBackground}" Style="{StaticResource MaterialDesignContextMenu}">
+                                <MenuItem
+                                    Command="{s:Action Method=Copy}"
+                                    CommandParameter="{Binding Path=Message}"
+                                    Header="复制消息" />
+                                <MenuItem
+                                    Command="{s:Action Method=Copy}"
+                                    CommandParameter="{Binding Path=ScreenshotPath}"
+                                    Header="复制图片地址" />
+                                <MenuItem
+                                    Command="{s:Action Method=CopyScreenshot}"
+                                    CommandParameter="{Binding Path=ScreenshotPath, Converter={x:Static wpfutils:PathToImageSourceConverter.Instance}}"
+                                    Header="复制截图" />
+                            </ContextMenu>
+                        </Grid.ContextMenu>
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Content="校验结果：" />
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Content="{Binding Path=VerificationResult}" />
+
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Content="消息：" />
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            Content="{Binding Path=Message}" />
+
+                        <Image
+                            x:Name="ScreenshotView"
+                            Grid.Row="2"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="2"
+                            Source="{Binding Path=ScreenshotPath, Converter={x:Static wpfutils:PathToImageSourceConverter.Instance}}"
+                            Stretch="Uniform"
+                            StretchDirection="DownOnly" />
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
 </UserControl>

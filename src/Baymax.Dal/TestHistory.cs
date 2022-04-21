@@ -24,7 +24,7 @@ namespace Baymax.Dal
         [ForeignKey(nameof(StepId))]
         public virtual TestStep Step { get; set; }
 
-        public List<TestResult> Results { get; set; }
+        public List<TestResult> Results { get; set; } = new List<TestResult>();
 
         public static explicit operator TestHistory(TestStep step) => new TestHistory()
         {

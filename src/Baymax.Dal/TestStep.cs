@@ -34,7 +34,7 @@ namespace Baymax.Dal
         public ElementEvent? ElementEvent { get; set; }
 
         [DisplayName("是否要清除值")]
-        public bool? ClearValue { get; set; }
+        public bool ClearValue { get; set; }
 
         [DisplayName("输入值")]
         public string EnterValue { get; set; }
@@ -45,8 +45,10 @@ namespace Baymax.Dal
         [DisplayName("验证值")]
         public string VerificationValue { get; set; }
 
-        [DisplayName("是否输出截图")]
         public bool OutputScreenhot { get; set; }
+
+        [DisplayName("截图父级级数(截图自身时为0)")]
+        public uint ParentLevel { get; set; }
 
         public List<TestHistory> TestHistories { get; set; }
 

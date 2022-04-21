@@ -1,13 +1,22 @@
-﻿using Baymax.Dal;
+﻿using System;
+using System.Collections.Generic;
+using Baymax.Dal;
 using Microsoft.EntityFrameworkCore;
 using StyletIoC;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using MaterialDesignThemes.Wpf;
 using System.Xml;
+using Baymax.Dal.Attributes;
+using Baymax.Dal.Enums;
 using Baymax.Models;
+using OpenQA.Selenium;
+using Selenium.Handler;
 using Stylet;
+using Stylet.Logging;
 
 namespace Baymax.Logic.ViewModels
 {
@@ -31,6 +40,9 @@ namespace Baymax.Logic.ViewModels
         public bool CanMoveUp => SelectedStep is { SortIndex: > 1 };
 
         public bool CanMoveDown => SelectedStep != null && SelectedStep.SortIndex < Data.Count;
+
+        public bool CanShowHistory { get; private set; }
+
         public BaymaxCaseModel TestCase { get; set; }
 
 
@@ -43,6 +55,175 @@ namespace Baymax.Logic.ViewModels
             }
 
             SelectedStep = Data.LastOrDefault();
+        }
+
+        public async void Run()
+        {
+            var timeStamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            var driver = WebDriverFactory.CreateDriver(DriverType.Chrome, headLess: false);
+            try
+            {
+                driver.Navigate().GoToUrl(TestCase.StartUrl);
+                using (var db = new BaymaxDbContext(TestCase.ConnectionString))
+                {
+                    List<TestHistory> testHistories = new List<TestHistory>();
+                    foreach (var step in db.TestSteps.OrderBy(x => x.SortIndex).ToList())
+                    {
+                        if (step.ActionType == ActionType.JumpToAddress)
+                        {
+                            driver.Navigate().GoToUrl(step.JumpAddress);
+                        }
+                        else if (step.ActionType == ActionType.GetElement)
+                        {
+                            ReadOnlyCollection<IWebElement> elements = null;
+                            if (step.ElementGetType != null)
+                            {
+                                var method = typeof(By).GetMethod(
+                                    step.ElementGetType.Value.GetAttribute<ActionNameAttribute>(),
+                                    BindingFlags.Public | BindingFlags.Static);
+                                if (method != null)
+                                {
+                                    var @by = (By)method.Invoke(null, new object?[] { step.ElementGetValue });
+
+                                    if (step.GetMultipleElements)
+                                    {
+                                        elements = driver.FindElements(@by);
+                                    }
+                                    else
+                                    {
+                                        elements = new ReadOnlyCollection<IWebElement>(new List<IWebElement>()
+                                            {driver.FindElement(@by)});
+                                    }
+                                }
+                            }
+
+                            if (elements is { Count: > 0 })
+                            {
+                                if (step.ElementEvent == ElementEvent.Click)
+                                {
+                                    foreach (var element in elements)
+                                    {
+                                        element.Click();
+                                    }
+                                }
+                                else if (step.ElementEvent == ElementEvent.Enter)
+                                {
+                                    foreach (var element in elements)
+                                    {
+                                        if (step.ClearValue)
+                                        {
+                                            element.Clear();
+                                        }
+
+                                        element.SendKeys(step.EnterValue);
+                                    }
+                                }
+                                else if (step.ElementEvent == ElementEvent.Verification)
+                                {
+                                    TestHistory history = (TestHistory)step;
+                                    history.TimeStamp = timeStamp;
+                                    foreach (var element in elements)
+                                    {
+                                        var verificateResult = true;
+                                        var message = string.Empty;
+                                        switch (step.VerificationType)
+                                        {
+                                            case VerificationType.Contain:
+                                                verificateResult = element.Text.Contains(step.VerificationValue);
+                                                if (!verificateResult)
+                                                    message = $"{element.Text}不包含{step.VerificationValue}";
+                                                break;
+                                            case VerificationType.Equal:
+                                                verificateResult = element.Text.Equals(step.VerificationValue);
+                                                if (!verificateResult)
+                                                    message = $"{element.Text}不等于{step.VerificationValue}";
+                                                break;
+                                            case VerificationType.NotContain:
+                                                verificateResult = !element.Text.Contains(step.VerificationValue);
+                                                if (!verificateResult)
+                                                    message = $"{element.Text}包含{step.VerificationValue}";
+                                                break;
+                                            case VerificationType.NotEqual:
+                                                verificateResult = !element.Text.Equals(step.VerificationValue);
+                                                if (!verificateResult)
+                                                    message = $"{element.Text}等于{step.VerificationValue}";
+                                                break;
+
+                                        }
+
+                                        TestResult testResult = new TestResult
+                                        {
+                                            VerificationResult = verificateResult,
+                                            HistoryId = step.Id,
+                                            Message = message
+                                        };
+                                        if (!verificateResult)
+                                        {
+                                            if (step.OutputScreenhot)
+                                            {
+                                                var screenHotFile =
+                                                    Path.Combine(Path.GetDirectoryName(TestCase.FullSource),
+                                                        "results", TestCase.Name,
+                                                        timeStamp.ToString(),
+                                                        $"{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}.png");
+                                                if (!Directory.Exists(Path.GetDirectoryName(screenHotFile)))
+                                                {
+                                                    Directory.CreateDirectory(Path.GetDirectoryName(screenHotFile));
+                                                }
+
+                                                driver.ExecuteScript("arguments[0].scrollIntoView();", element);
+
+                                                if (step.ParentLevel > 0)
+                                                {
+                                                    var level = step.ParentLevel;
+                                                    IWebElement parent = null;
+                                                    do
+                                                    {
+
+                                                        parent = (parent ?? element).FindElement(By.XPath(".."));
+                                                        level--;
+                                                    } while (level > 0);
+                                                    ((ITakesScreenshot)parent).GetScreenshot()
+                                                        .SaveAsFile(screenHotFile, ScreenshotImageFormat.Png);
+
+                                                }
+                                                else
+                                                {
+                                                    ((ITakesScreenshot)element).GetScreenshot()
+                                                        .SaveAsFile(screenHotFile, ScreenshotImageFormat.Png);
+                                                }
+
+                                                testResult.ScreenshotPath = screenHotFile;
+                                            }
+                                        }
+
+                                        history.Results.Add(testResult);
+                                    }
+
+                                    testHistories.Add(history);
+                                }
+                            }
+                        }
+                    }
+
+                    db.TestHistories.AddRange(testHistories);
+                    await db.SaveChangesAsync();
+                    CanShowHistory = await db.TestHistories.CountAsync() > 0;
+                }
+            }
+            catch (TargetInvocationException targetInvocationException)
+            {
+                LogManager.GetLogger(typeof(ShellViewModel)).Error(targetInvocationException);
+            }
+            catch (Exception exception)
+            {
+                LogManager.GetLogger(typeof(ShellViewModel)).Error(exception);
+            }
+            finally
+            {
+                driver.Close();
+                driver.Quit();
+            }
         }
 
         public async void MoveUp()
@@ -99,17 +280,14 @@ namespace Baymax.Logic.ViewModels
         public void Save()
         {
             var model = _container.Get<ShellViewModel>();
-            //var projectFile = model.ProjectFile;
-            //foreach (var testCase in model.Project.TestCases)
-            //{
-            //    if (testCase.FullSource == Source)
-            //    {
-            //        testCase.StartUrl = StartUrl;
-            //        break;
-            //    }
-            //}
-
             File.WriteAllText(model.ProjectFile, model.Project.ToXml(removeDefaultNamespaces: true));
+        }
+
+        public async void ShowHistory()
+        {
+            var model = IOC.Get<HistoryViewModel>();
+            model.TestCase = TestCase;
+            await Window.ShowDialog(model);
         }
 
         protected override void OnViewLoaded()
@@ -120,6 +298,7 @@ namespace Baymax.Logic.ViewModels
             {
                 await SaveTestStep();
             };
+
             LoadData();
         }
 
@@ -130,6 +309,8 @@ namespace Baymax.Logic.ViewModels
                 db.Entry(SelectedStep).State = SelectedStep.Id == 0 ? EntityState.Added : EntityState.Modified;
                 await db.SaveChangesAsync();
             }
+
+            LoadData();
         }
 
         private void LoadData()
@@ -140,6 +321,7 @@ namespace Baymax.Logic.ViewModels
                 {
                     Data = new ObservableCollection<TestStep>(await db.TestSteps.AsNoTracking()
                         .OrderBy(x => x.SortIndex).ToListAsync());
+                    CanShowHistory = await db.TestHistories.CountAsync() > 0;
                 }
             });
         }

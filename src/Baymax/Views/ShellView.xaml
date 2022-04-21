@@ -28,6 +28,7 @@
             Grid.Row="0"
             Height="40"
             VerticalAlignment="Stretch"
+            Background="{StaticResource MaterialDesignLightBackground}"
             IsMainMenu="True"
             Style="{StaticResource MaterialDesignMenu}">
             <MenuItem Header="文件(_F)">
@@ -48,21 +49,27 @@
                                        ActionNotFound=Disable}"
                     Header="关闭(_C)"
                     Icon="{materialDesign:PackIcon Close}" />
-                <MenuItem Command="{s:Action Method=CloseAll, ActionNotFound=Disable}" Header="全部关闭" />
-                <Separator />
+                <MenuItem
+                    Command="{s:Action Method=CloseAll,
+                                       ActionNotFound=Disable}"
+                    Header="全部关闭"
+                    Visibility="Collapsed" />
+                <Separator Visibility="Collapsed" />
                 <MenuItem
                     Command="{s:Action Method=Save,
                                        ActionNotFound=Disable}"
                     Header="保存(_S)"
-                    Icon="{materialDesign:PackIcon ContentSave}" />
+                    Icon="{materialDesign:PackIcon ContentSave}"
+                    Visibility="Collapsed" />
                 <MenuItem
                     Command="{s:Action Method=SaveAll,
                                        ActionNotFound=Disable}"
                     Header="全部保存"
-                    Icon="{materialDesign:PackIcon ContentSaveAll}" />
-                <Separator />
-                <MenuItem Header="最近使用过的用例" />
-                <MenuItem Header="最近使用过的项目" />
+                    Icon="{materialDesign:PackIcon ContentSaveAll}"
+                    Visibility="Collapsed" />
+                <Separator Visibility="Collapsed" />
+                <MenuItem Header="最近使用过的用例" Visibility="Collapsed" />
+                <MenuItem Header="最近使用过的项目" Visibility="Collapsed" />
                 <Separator />
                 <MenuItem
                     Command="{s:Action Method=Exit,
@@ -70,7 +77,7 @@
                     Header="退出(_E)"
                     Icon="{materialDesign:PackIcon ExitToApp}" />
             </MenuItem>
-            <MenuItem Header="编辑(_E)">
+            <MenuItem Header="编辑(_E)" Visibility="Collapsed">
                 <MenuItem
                     Command="{s:Action Method=Find,
                                        ActionNotFound=Disable}"
@@ -111,7 +118,7 @@
                 <Separator />
                 <MenuItem Command="{s:Action Method=Options, ActionNotFound=Disable}" Header="选项" />
             </MenuItem>
-            <MenuItem Header="项目(_P)">
+            <MenuItem Header="用例(_P)">
                 <MenuItem
                     Command="{s:Action Method=NewCase,
                                        ActionNotFound=Disable}"
@@ -138,7 +145,7 @@
                     Content="{materialDesign:PackIcon FolderOpen}"
                     Style="{StaticResource MaterialDesignToolButton}"
                     ToolTip="打开" />
-                <Separator />
+                <Separator Visibility="Collapsed" />
                 <Button
                     Command="{s:Action Method=Close,
                                        ActionNotFound=Disable}"
@@ -150,22 +157,25 @@
                                        ActionNotFound=Disable}"
                     Content="{materialDesign:PackIcon CloseBoxes}"
                     Style="{StaticResource MaterialDesignToolButton}"
-                    ToolTip="全部关闭" />
-                <Separator />
+                    ToolTip="全部关闭"
+                    Visibility="Collapsed" />
+                <Separator Visibility="Collapsed" />
                 <Button
                     Command="{s:Action Method=Save,
                                        ActionNotFound=Disable}"
                     Content="{materialDesign:PackIcon ContentSave}"
                     Style="{StaticResource MaterialDesignToolButton}"
-                    ToolTip="保存" />
+                    ToolTip="保存"
+                    Visibility="Collapsed" />
                 <Button
                     Command="{s:Action Method=SaveAll,
                                        ActionNotFound=Disable}"
                     Content="{materialDesign:PackIcon ContentSaveAll}"
                     Style="{StaticResource MaterialDesignToolButton}"
-                    ToolTip="全部保存" />
+                    ToolTip="全部保存"
+                    Visibility="Collapsed" />
             </ToolBar>
-            <ToolBar Style="{StaticResource MaterialDesignToolBar}">
+            <ToolBar Style="{StaticResource MaterialDesignToolBar}" Visibility="Collapsed">
                 <Button
                     Command="{s:Action Method=Find,
                                        ActionNotFound=Disable}"
@@ -203,51 +213,13 @@
                     Content="{materialDesign:PackIcon Delete}"
                     Style="{StaticResource MaterialDesignToolButton}"
                     ToolTip="删除" />
-                <Separator />
+                <Separator Visibility="Collapsed" />
                 <Button
                     Command="{s:Action Method=SelectAll,
                                        ActionNotFound=Disable}"
                     Content="{materialDesign:PackIcon SelectAll}"
                     Style="{StaticResource MaterialDesignToolButton}"
                     ToolTip="全选" />
-            </ToolBar>
-            <ToolBar Style="{StaticResource MaterialDesignToolBar}">
-                <Button
-                    Command="{s:Action Method=Recording,
-                                       ActionNotFound=Disable}"
-                    Content="{materialDesign:PackIcon RecordRec}"
-                    Style="{StaticResource MaterialDesignToolButton}"
-                    ToolTip="录制" />
-                <Button
-                    Command="{s:Action Method=StopRecording,
-                                       ActionNotFound=Disable}"
-                    Content="{materialDesign:PackIcon Stop}"
-                    Style="{StaticResource MaterialDesignToolButton}"
-                    ToolTip="停止录制" />
-                <Button
-                    Command="{s:Action Method=Run,
-                                       ActionNotFound=Disable}"
-                    Content="{materialDesign:PackIcon Play}"
-                    Style="{StaticResource MaterialDesignToolButton}"
-                    ToolTip="运行" />
-                <Button
-                    Command="{s:Action Method=RunByStep,
-                                       ActionNotFound=Disable}"
-                    Content="{materialDesign:PackIcon StepForward}"
-                    Style="{StaticResource MaterialDesignToolButton}"
-                    ToolTip="逐步运行" />
-                <Button
-                    Command="{s:Action Method=Replay,
-                                       ActionNotFound=Disable}"
-                    Content="{materialDesign:PackIcon Replay}"
-                    Style="{StaticResource MaterialDesignToolButton}"
-                    ToolTip="重新运行" />
-                <Button
-                    Command="{s:Action Method=Stop,
-                                       ActionNotFound=Disable}"
-                    Content="{materialDesign:PackIcon Stop}"
-                    Style="{StaticResource MaterialDesignToolButton}"
-                    ToolTip="停止" />
             </ToolBar>
         </ToolBarTray>
         <TabControl
