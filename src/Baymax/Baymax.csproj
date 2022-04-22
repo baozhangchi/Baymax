@@ -6,10 +6,22 @@
 		<Nullable>disable</Nullable>
 		<UseWPF>true</UseWPF>
 		<ApplicationIcon>baymax.ico</ApplicationIcon>
+		<SignAssembly>True</SignAssembly>
+		<AssemblyOriginatorKeyFile>D:\Repos\CSharp\Baymax\src\baymax.snk</AssemblyOriginatorKeyFile>
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="baymax.jpg" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Content Include="baymax.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Resource Include="baymax.jpg">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Resource>
 	</ItemGroup>
 
 	<ItemGroup>

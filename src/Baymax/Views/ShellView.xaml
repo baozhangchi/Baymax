@@ -130,6 +130,12 @@
                     Header="删除用例"
                     Icon="{materialDesign:PackIcon NewspaperRemove}" />
             </MenuItem>
+            <MenuItem Header="帮助(_H)">
+                <MenuItem
+                    Command="{s:Action Method=ShowAbout}"
+                    Header="关于(_A)"
+                    Icon="{materialDesign:PackIcon About}" />
+            </MenuItem>
         </Menu>
         <ToolBarTray Grid.Row="1" Style="{StaticResource MaterialDesignToolBarTray}">
             <ToolBar Style="{StaticResource MaterialDesignToolBar}">

@@ -27,6 +27,11 @@ namespace Baymax.Logic.ViewModels
         public TestCaseViewModel(IContainer container)
         {
             _container = container;
+            DetailViewModel = new TestCaseDetailViewModel();
+            DetailViewModel.SaveClick += async (s, e) =>
+            {
+                await SaveTestStep();
+            };
         }
 
         public ObservableCollection<TestStep> Data { get; set; }
@@ -61,6 +66,7 @@ namespace Baymax.Logic.ViewModels
         {
             var timeStamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             var driver = WebDriverFactory.CreateDriver(DriverType.Chrome, headLess: false);
+            driver.Manage().Window.Maximize();
             try
             {
                 driver.Navigate().GoToUrl(TestCase.StartUrl);
@@ -157,44 +163,42 @@ namespace Baymax.Logic.ViewModels
                                             HistoryId = step.Id,
                                             Message = message
                                         };
-                                        if (!verificateResult)
+
+                                        if (step.OutputScreenhot)
                                         {
-                                            if (step.OutputScreenhot)
+                                            var screenHotFile =
+                                                Path.Combine(Path.GetDirectoryName(TestCase.FullSource),
+                                                    "results", TestCase.Name,
+                                                    timeStamp.ToString(),
+                                                    $"{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}.png");
+                                            if (!Directory.Exists(Path.GetDirectoryName(screenHotFile)))
                                             {
-                                                var screenHotFile =
-                                                    Path.Combine(Path.GetDirectoryName(TestCase.FullSource),
-                                                        "results", TestCase.Name,
-                                                        timeStamp.ToString(),
-                                                        $"{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}.png");
-                                                if (!Directory.Exists(Path.GetDirectoryName(screenHotFile)))
-                                                {
-                                                    Directory.CreateDirectory(Path.GetDirectoryName(screenHotFile));
-                                                }
-
-                                                driver.ExecuteScript("arguments[0].scrollIntoView();", element);
-
-                                                if (step.ParentLevel > 0)
-                                                {
-                                                    var level = step.ParentLevel;
-                                                    IWebElement parent = null;
-                                                    do
-                                                    {
-
-                                                        parent = (parent ?? element).FindElement(By.XPath(".."));
-                                                        level--;
-                                                    } while (level > 0);
-                                                    ((ITakesScreenshot)parent).GetScreenshot()
-                                                        .SaveAsFile(screenHotFile, ScreenshotImageFormat.Png);
-
-                                                }
-                                                else
-                                                {
-                                                    ((ITakesScreenshot)element).GetScreenshot()
-                                                        .SaveAsFile(screenHotFile, ScreenshotImageFormat.Png);
-                                                }
-
-                                                testResult.ScreenshotPath = screenHotFile;
+                                                Directory.CreateDirectory(Path.GetDirectoryName(screenHotFile));
                                             }
+
+                                            driver.ExecuteScript("arguments[0].scrollIntoView();", element);
+
+                                            if (step.ParentLevel > 0)
+                                            {
+                                                var level = step.ParentLevel;
+                                                IWebElement parent = null;
+                                                do
+                                                {
+
+                                                    parent = (parent ?? element).FindElement(By.XPath(".."));
+                                                    level--;
+                                                } while (level > 0);
+                                                ((ITakesScreenshot)parent).GetScreenshot()
+                                                    .SaveAsFile(screenHotFile, ScreenshotImageFormat.Png);
+
+                                            }
+                                            else
+                                            {
+                                                ((ITakesScreenshot)element).GetScreenshot()
+                                                    .SaveAsFile(screenHotFile, ScreenshotImageFormat.Png);
+                                            }
+
+                                            testResult.ScreenshotPath = screenHotFile;
                                         }
 
                                         history.Results.Add(testResult);
@@ -293,12 +297,6 @@ namespace Baymax.Logic.ViewModels
         protected override void OnViewLoaded()
         {
             base.OnViewLoaded();
-            DetailViewModel = new TestCaseDetailViewModel();
-            DetailViewModel.SaveClick += async (s, e) =>
-            {
-                await SaveTestStep();
-            };
-
             LoadData();
         }
 
@@ -313,17 +311,19 @@ namespace Baymax.Logic.ViewModels
             LoadData();
         }
 
-        private void LoadData()
+        private async void LoadData()
         {
-            Execute.OnUIThread(async () =>
+            using (var db = new BaymaxDbContext(TestCase.ConnectionString))
             {
-                using (var db = new BaymaxDbContext(TestCase.ConnectionString))
+                var data = await db.TestSteps.AsNoTracking()
+                    .OrderBy(x => x.SortIndex).ToListAsync();
+                var canShowHistoty = await db.TestHistories.CountAsync() > 0;
+                Execute.OnUIThread(() =>
                 {
-                    Data = new ObservableCollection<TestStep>(await db.TestSteps.AsNoTracking()
-                        .OrderBy(x => x.SortIndex).ToListAsync());
-                    CanShowHistory = await db.TestHistories.CountAsync() > 0;
-                }
-            });
+                    Data = new ObservableCollection<TestStep>(data);
+                    CanShowHistory = canShowHistoty;
+                });
+            }
         }
 
         protected override void OnPropertyChanged(string propertyName)

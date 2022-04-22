@@ -99,6 +99,11 @@ namespace Baymax.Logic.ViewModels
             }
         }
 
+        public async void ShowAbout()
+        {
+            await Window.ShowDialog(IOC.Get<AboutViewModel>());
+        }
+
         public void Close()
         {
             CurrentCase = null;
@@ -110,8 +115,6 @@ namespace Baymax.Logic.ViewModels
             if (IOC.Get<IWindowManager>().ShowMessageBox($"确定要删除用例【{CurrentCase.Name}】吗？", "提示",
                     MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
             {
-                Project.TestCases.Remove(CurrentCase);
-                File.WriteAllText(ProjectFile, Project.ToXml(removeDefaultNamespaces: true));
                 File.Delete(CurrentCase.FullSource);
                 var screenhotFolder = Path.Combine(Path.GetDirectoryName(CurrentCase.FullSource),
                     "results", CurrentCase.Name);
@@ -119,6 +122,8 @@ namespace Baymax.Logic.ViewModels
                 {
                     Directory.Delete(screenhotFolder, true);
                 }
+                Project.TestCases.Remove(CurrentCase);
+                File.WriteAllText(ProjectFile, Project.ToXml(removeDefaultNamespaces: true));
                 CurrentCase = Project.TestCases?.FirstOrDefault();
             }
         }

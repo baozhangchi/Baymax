@@ -45,6 +45,7 @@ namespace Baymax.Dal
         [DisplayName("验证值")]
         public string VerificationValue { get; set; }
 
+        [DisplayName("是否输出截图")]
         public bool OutputScreenhot { get; set; }
 
         [DisplayName("截图父级级数(截图自身时为0)")]
