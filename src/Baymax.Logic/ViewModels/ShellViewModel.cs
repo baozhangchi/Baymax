@@ -99,28 +99,37 @@ namespace Baymax.Logic.ViewModels
             }
         }
 
+        /// <summary>
+        /// 打开关于窗口
+        /// </summary>
         public async void ShowAbout()
         {
             await Window.ShowDialog(IOC.Get<AboutViewModel>());
         }
 
+        /// <summary>
+        /// 关闭当前项目
+        /// </summary>
         public void Close()
         {
             CurrentCase = null;
             Project = null;
         }
 
+        /// <summary>
+        /// 删除用例
+        /// </summary>
         public void DeleteCase()
         {
             if (IOC.Get<IWindowManager>().ShowMessageBox($"确定要删除用例【{CurrentCase.Name}】吗？", "提示",
                     MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
             {
                 File.Delete(CurrentCase.FullSource);
-                var screenhotFolder = Path.Combine(Path.GetDirectoryName(CurrentCase.FullSource),
+                var screenshotsFolder = Path.Combine(Path.GetDirectoryName(CurrentCase.FullSource) ?? string.Empty,
                     "results", CurrentCase.Name);
-                if (Directory.Exists(screenhotFolder))
+                if (Directory.Exists(screenshotsFolder))
                 {
-                    Directory.Delete(screenhotFolder, true);
+                    Directory.Delete(screenshotsFolder, true);
                 }
                 Project.TestCases.Remove(CurrentCase);
                 File.WriteAllText(ProjectFile, Project.ToXml(removeDefaultNamespaces: true));
@@ -128,11 +137,15 @@ namespace Baymax.Logic.ViewModels
             }
         }
 
+        /// <summary>
+        /// 打开项目
+        /// </summary>
+        /// <param name="projectFile"></param>
         private void OpenProject(string projectFile)
         {
             ProjectFile = projectFile;
             var xml = File.ReadAllText(ProjectFile);
-            Project = File.ReadAllText(ProjectFile).ToObject<BaymaxProjectModel>();
+            Project = xml.ToObject<BaymaxProjectModel>();
             if (Project.TestCases?.Count > 0)
             {
                 foreach (var testCase in Project.TestCases)
@@ -153,6 +166,9 @@ namespace Baymax.Logic.ViewModels
                     NotifyOfPropertyChange(nameof(CanNewCase));
                     NotifyOfPropertyChange(nameof(CanClose));
                     DisplayName = Project == null ? "大白" : $"大白 - {Project.Name}";
+                    break;
+                case nameof(CurrentCase):
+                    NotifyOfPropertyChange(nameof(CanDeleteCase));
                     break;
             }
         }

@@ -65,7 +65,11 @@ namespace Baymax.Logic.ViewModels
         public async void Run()
         {
             var timeStamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            var driver = WebDriverFactory.CreateDriver(DriverType.Chrome, headLess: false);
+#if DEBUG
+            var driver = WebDriverFactory.CreateDriver(DriverType.Chrome, headLess: false, driverPath: Config.ChromeDriverPath);
+#else
+            var driver = WebDriverFactory.CreateDriver(DriverType.Chrome, headLess: true, driverPath: Config.ChromeDriverPath);
+#endif
             driver.Manage().Window.Maximize();
             try
             {
